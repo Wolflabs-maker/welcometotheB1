@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOLFFY | Welcome to the Black Parade - MCR (B1)</title>
+    <!-- Tailwind CSS with "Black Parade" Palette Configured -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'spotify-green': '#1DB954',
+                        'spotify-green-hover': '#1ed760',
+                        'spotify-black': '#121212',
+                        'spotify-base': '#000000',
+                        'spotify-surface': '#181818',
+                        'spotify-surface-hover': '#282828',
+                        'spotify-text-base': '#a7a7a7',
+                        'spotify-text-highlight': '#ffffff',
+                        'lyric-bg': '#0a0a0a', /* Super deep black for the Emo vibe */
+                        'mcr-crimson': '#991b1b', /* Dark red / theatrical crimson */
+                        'mcr-crimson-hover': '#7f1d1d',
+                        'mcr-silver': '#d1d5db' /* Silver for contrast */
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --spotify-green: #1DB954;
+            --spotify-black: #121212;
+            --spotify-base: #000000;
+            --spotify-surface: #181818;
+            --spotify-surface-hover: #282828;
+            --spotify-text-base: #a7a7a7;
+            --spotify-text-highlight: #ffffff;
+            --lyric-bg: #0a0a0a; 
+            --mcr-crimson: #991b1b;
+            --mcr-silver: #d1d5db;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--spotify-base);
+            color: var(--spotify-text-base);
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Main Structure */
+        .app-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            height: calc(100vh - 90px);
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: var(--spotify-base);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 12px;
+            flex-shrink: 0;
+        }
+
+        .main-view {
+            flex: 1;
+            /* Gradient inspired by theatrical / Black Parade aesthetics */
+            background: linear-gradient(180deg, #1c1917 0%, var(--spotify-black) 100%);
+            border-radius: 12px;
+            margin: 8px 8px 0 0;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .player-bar {
+            height: 90px;
+            background-color: var(--spotify-surface);
+            border-top: 1px solid #282828;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 50;
+        }
+        
+        /* Navigation */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            color: var(--spotify-text-base);
+            font-weight: 700;
+            font-size: 14px;
+            transition: color 0.2s;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .nav-item:hover { color: var(--spotify-text-highlight); }
+        .nav-item.active { color: var(--spotify-text-highlight); background-color: var(--spotify-surface-hover); border-left: 3px solid var(--mcr-crimson); }
+
+        /* Buttons */
+        .play-btn-large {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--mcr-silver);
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(209, 213, 219, 0.3);
+        }
+        .play-btn-large:hover { background-color: #ffffff; transform: scale(1.08); box-shadow: 0 12px 20px rgba(255, 255, 255, 0.5); }
+
+        /* Glowing Confirm Button (Crimson) */
+        .btn-confirm-glow {
+            background-color: var(--mcr-crimson);
+            color: white;
+            font-weight: 900;
+            padding: 16px 40px;
+            border-radius: 500px;
+            text-transform: uppercase;
+            font-size: 16px;
+            letter-spacing: 2px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 20px rgba(153, 27, 27, 0.5);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-confirm-glow:hover {
+            background-color: #7f1d1d;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 10px 30px rgba(153, 27, 27, 0.8);
+        }
+        .btn-confirm-glow:disabled {
+            background-color: #333;
+            color: #666;
+            box-shadow: none;
+            transform: none;
+            cursor: not-allowed;
+        }
+        
+        @keyframes pulse-crimson-glow {
+            0% { box-shadow: 0 0 10px rgba(153, 27, 27, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(153, 27, 27, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(153, 27, 27, 0.4); }
+        }
+        .animate-pulse-crimson-glow { animation: pulse-crimson-glow 2s infinite ease-in-out; }
+
+        /* Absolute Success Class */
+        .bg-success-glow {
+            background-color: var(--mcr-silver) !important;
+            color: black !important;
+            border-color: var(--mcr-silver) !important;
+            box-shadow: 0 0 30px rgba(209, 213, 219, 0.8) !important;
+            transition: all 0.3s ease !important;
+        }
+        .bg-success-glow p, .bg-success-glow span, .bg-success-glow div, .bg-success-glow i, .bg-success-glow h3 { 
+            color: black !important; 
+            text-shadow: none !important;
+        }
+
+        /* Error Class */
+        .bg-error-glow {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.8) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        /* Lyric Visual Elements */
+        .lyric-line {
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        @media (max-width: 768px) { .lyric-line { font-size: 1.8rem; } }
+        
+        .lyric-inactive { color: rgba(255, 255, 255, 0.3); }
+        .lyric-active { color: var(--spotify-text-highlight); text-shadow: 0 4px 20px rgba(153, 27, 27, 0.4); }
+        
+        .lyric-blank {
+            display: inline-block;
+            min-width: 140px;
+            border-bottom: 4px solid var(--mcr-crimson);
+            color: var(--mcr-crimson);
+            text-align: center;
+            padding: 0 10px;
+            margin: 0 5px;
+            transition: all 0.3s;
+            border-radius: 8px;
+        }
+        .lyric-blank.filled {
+            border-bottom-color: var(--mcr-crimson);
+            text-shadow: 0 0 20px rgba(153, 27, 27, 0.8);
+            color: white;
+        }
+
+        /* Option Pills Style */
+        .option-pill {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        .option-pill:hover {
+            background: rgba(153, 27, 27, 0.2);
+            border-color: var(--mcr-crimson);
+            transform: translateY(-2px);
+        }
+        .option-pill.selected {
+            background: var(--mcr-crimson);
+            color: white;
+            border-color: var(--mcr-crimson);
+            box-shadow: 0 0 15px rgba(153, 27, 27, 0.6);
+        }
+
+        /* Hide Scrollbar for tabs */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Immersive View for Capsules */
+        .immersive-view {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 90px;
+            background: linear-gradient(180deg, var(--lyric-bg) 0%, #000000 100%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.3, 0, 0, 1);
+        }
+        .immersive-view.active { transform: translateY(0); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(153, 27, 27, 0.5); }
+
+        /* Player Progress Bar */
+        .progress-bar { width: 100%; height: 4px; background: #333; border-radius: 2px; cursor: pointer; position: relative; }
+        .progress-fill { height: 100%; background: var(--spotify-text-highlight); border-radius: 2px; width: 0%; transition: width 0.1s linear; }
+        .progress-bar:hover .progress-fill { background: var(--mcr-silver); }
+        .progress-bar:hover .progress-fill::after {
+            content: ''; position: absolute; right: -5px; top: -4px; width: 12px; height: 12px;
+            background: white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- MAIN CONTAINER -->
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="mb-8 px-3 text-white flex items-center gap-2">
+                <div class="w-8 h-8 bg-zinc-300 rounded-full flex items-center justify-center text-black font-black italic text-lg shadow-[0_0_15px_rgba(209,213,219,0.5)]">W</div>
+                <span class="text-2xl font-black tracking-tighter">WOLFFY</span>
+            </div>
+            <ul class="space-y-2">
+                <li class="nav-item active"><i class="fa-solid fa-house text-xl w-6"></i> Home</li>
+                <li class="nav-item"><i class="fa-solid fa-magnifying-glass text-xl w-6"></i> Search</li>
+                <li class="nav-item"><i class="fa-solid fa-book-open text-xl w-6"></i> Your Library</li>
+            </ul>
+            <div class="mt-8 pt-6 border-t border-zinc-800">
+                <p class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4 px-3">Study Playlists</p>
+                <ul class="space-y-3 px-3 text-sm font-semibold">
+                    <li class="hover:text-white cursor-pointer transition text-zinc-500">A1 - Lady Gaga & Bruno Mars</li>
+                    <li class="text-white cursor-pointer transition">B1 - My Chemical Romance</li>
+                    <li class="hover:text-white cursor-pointer transition text-zinc-500">B1 - Eminem (Not Afraid)</li>
+                    <li class="hover:text-white cursor-pointer transition text-zinc-500">B2 - Linkin Park (In the End)</li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- MAIN AREA -->
+        <main class="main-view shadow-2xl" id="main-dashboard">
+            <!-- Header Album Cover Style -->
+            <div class="p-8 pt-16 flex flex-col md:flex-row items-end gap-6 bg-gradient-to-t from-black/90 to-transparent">
+                <div class="w-48 h-48 md:w-60 md:h-60 shadow-[0_15px_40px_rgba(153,27,27,0.3)] flex-shrink-0 group relative overflow-hidden bg-zinc-950 rounded-xl border border-red-900/50">
+                    <!-- Theatrical / Emo / Marching Band Image -->
+                    <div class="w-full h-full flex flex-col items-center justify-center text-center p-4 bg-[url('https://images.unsplash.com/photo-1508603681986-7e3e7f4c000c?auto=format&fit=crop&w=600&q=80')] bg-cover bg-blend-overlay bg-black/70 group-hover:bg-black/40 transition-all duration-700 grayscale">
+                        <span class="text-[10px] font-bold text-mcr-silver tracking-[0.3em] mb-2 uppercase drop-shadow-md">WOLFFY B1</span>
+                        <h2 class="text-3xl font-black text-white italic tracking-tighter shadow-black drop-shadow-lg leading-tight">THE BLACK<br><span class="text-red-600">PARADE</span></h2>
+                        <span class="text-gray-400 font-bold text-[10px] mt-4 uppercase tracking-widest"></span>
+                    </div>
+                    <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="fa-solid fa-play text-5xl text-mcr-silver"></i>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2 pb-2">
+                    <span class="text-sm font-bold tracking-widest uppercase text-white"><i class="fa-solid fa-skull-crossbones text-mcr-silver mr-1"></i> Interactive Masterclass • B1</span>
+                    <h1 class="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-white mb-2 leading-none drop-shadow-lg">Welcome to the Black Parade</h1>
+                    <div class="flex items-center gap-3 text-sm font-bold flex-wrap">
+                        <div class="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-600"><i class="fa-solid fa-guitar text-[10px] text-gray-300"></i></div>
+                        <span class="text-white hover:underline cursor-pointer">My Chemical Romance</span>
+                        <span class="text-gray-400">• Theme: Legacy & Overcoming</span>
+                        <span class="text-red-500 font-bold">• Focus: Narrative Tenses</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-8 mt-6">
+                <p class="text-lg md:text-xl text-gray-300 leading-relaxed font-medium max-w-4xl shadow-black drop-shadow-lg border-l-4 border-mcr-crimson pl-4">
+                    March with us through childhood memories and overcoming adversity. 
+                    In this 25-capsule Masterclass, you will master <span class="text-white font-bold italic">Narrative Tenses</span> (Past Simple vs. Past Continuous) focusing on interrupted actions in the past.
+                </p>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="px-8 py-6 flex items-center gap-6 mt-2">
+                <div class="play-btn-large" onclick="startMasterclass()">
+                    <i class="fa-solid fa-play ml-1"></i>
+                </div>
+                <i class="fa-regular fa-heart text-3xl text-mcr-silver cursor-pointer transition hover:text-white hover:scale-110"></i>
+                <i class="fa-solid fa-ellipsis text-2xl text-zinc-500 hover:text-white cursor-pointer transition"></i>
+            </div>
+
+            <!-- CATEGORY TABS (NEW) -->
+            <div class="px-8 mt-2">
+                <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide" id="tabs-container">
+                    <!-- Tabs Injected via JS -->
+                </div>
+            </div>
+
+            <!-- CAPSULE GRID -->
+            <div class="px-8 pb-20 pt-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="capsules-container">
+                    <!-- Cards Injected via JS based on selected Category -->
+                </div>
+            </div>
+        </main>
+
+        <!-- IMMERSIVE CAPSULE VIEW -->
+        <div class="immersive-view" id="exercise-view">
+            <header class="p-6 flex justify-between items-center bg-transparent z-10 border-b border-white/5">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-black/60 rounded-xl flex items-center justify-center shadow-lg border border-red-900/40 backdrop-blur-sm" id="ex-icon-container">
+                        <i class="fa-solid fa-music text-mcr-silver text-xl" id="ex-header-icon"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold tracking-widest text-mcr-silver mb-0.5" id="ex-subtitle">MODULE TYPE</p>
+                        <h2 class="text-xl font-bold text-white tracking-tight" id="ex-title">Capsule Title</h2>
+                    </div>
+                </div>
+                <button onclick="closeExercise()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 text-white transition backdrop-blur-md">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </header>
+
+            <!-- pb-32 ensures content ends safely above the floating bar -->
+            <div class="flex-grow flex flex-col p-8 pb-32 overflow-y-auto relative" id="exercise-content">
+                <!-- Content Injected via JS -->
+            </div>
+
+            <!-- Floating Feedback Bar -->
+            <div id="feedback-bar" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-[90%] max-w-3xl py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] z-50 flex items-center justify-between px-6 transition-all duration-400 ease-out border-2 opacity-0 translate-y-12 pointer-events-none backdrop-blur-xl">
+                <!-- Feedback Injected -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM PLAYER -->
+    <div class="player-bar">
+        <div class="flex items-center gap-4 w-1/3">
+            <div class="w-14 h-14 bg-zinc-900 rounded shadow flex items-center justify-center text-zinc-500 overflow-hidden border border-zinc-700">
+                <img src="https://images.unsplash.com/photo-1508603681986-7e3e7f4c000c?auto=format&fit=crop&w=100&q=80" class="w-full h-full object-cover opacity-80 grayscale" alt="Cover">
+            </div>
+            <div class="flex flex-col">
+                <span class="text-sm font-bold text-white hover:underline cursor-pointer">Welcome to the Black Parade</span>
+                <span class="text-xs text-zinc-400 hover:underline cursor-pointer">My Chemical Romance</span>
+            </div>
+            <i class="fa-solid fa-heart text-mcr-silver cursor-pointer ml-4"></i>
+        </div>
+
+        <div class="flex flex-col items-center justify-center w-1/3 gap-2">
+            <div class="flex items-center gap-6 text-zinc-400">
+                <i class="fa-solid fa-shuffle hover:text-white cursor-pointer transition"></i>
+                <i class="fa-solid fa-backward-step hover:text-white cursor-pointer transition text-xl"></i>
+                <div class="w-8 h-8 rounded-full bg-mcr-silver text-black flex items-center justify-center cursor-pointer hover:scale-105 transition shadow-[0_0_10px_rgba(209,213,219,0.3)]" onclick="toggleGlobalPlay()">
+                    <i class="fa-solid fa-play ml-0.5" id="global-play-icon"></i>
+                </div>
+                <i class="fa-solid fa-forward-step hover:text-white cursor-pointer transition text-xl"></i>
+                <i class="fa-solid fa-repeat text-mcr-crimson cursor-pointer transition"></i>
+            </div>
+            <div class="flex items-center gap-2 w-full max-w-md text-xs text-zinc-400 font-mono">
+                <span id="player-time-current">0:00</span>
+                <div class="progress-bar group">
+                    <div class="progress-fill group-hover:bg-mcr-silver" id="player-progress"></div>
+                </div>
+                <span>5:11</span>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 w-1/3 text-zinc-400">
+            <i class="fa-solid fa-microphone text-mcr-crimson cursor-pointer transition" title="Capsule Mode Active"></i>
+            <i class="fa-solid fa-list-ul hover:text-white cursor-pointer transition"></i>
+            <i class="fa-solid fa-volume-high hover:text-white cursor-pointer transition"></i>
+            <div class="w-24 h-1 bg-zinc-700 rounded-full cursor-pointer"><div class="w-1/2 h-full bg-mcr-silver rounded-full hover:bg-white"></div></div>
+        </div>
+    </div>
+
+    <!-- B1 CAPSULES LOGIC (MCR) WITH 25 EXERCISES CATEGORIZED & MANUAL ADVANCE -->
+    <script>
+        // Define the 5 Acts (Categories)
+        const categories = [
+            { id: 1, name: 'Act I: The Memory', icon: 'fa-brain' },
+            { id: 2, name: 'Act II: The Interruption', icon: 'fa-bolt' },
+            { id: 3, name: 'Act III: The Phantom', icon: 'fa-ghost' },
+            { id: 4, name: 'Act IV: Adversity', icon: 'fa-shield-heart' },
+            { id: 5, name: 'Act V: Carry On', icon: 'fa-flag' }
+        ];
+
+        let currentCategory = 1;
+
+        // Array with the 25 Exercises for B1 Level (My Chemical Romance) - Now with 'act' property
+        const modules = [
+            // ACT 1: The Memory
+            { act: 1, id: 'cap-1', title: 'A Childhood Memory', desc: 'Listen to the opening lyrics and complete the memory.', tag: 'Spotify Lyrics', icon: 'fa-headphones', type: 'lyrics', lines: [ { text: "When I was a ____ boy", active: true, target: "young" }, { text: "My father took me into the ____", active: true, target: "city" }, { text: "To see a marching band", active: false } ], options: ["young", "sad", "city", "town"] },
+            { act: 1, id: 'cap-2', title: 'Grammar Context', desc: 'Understand the difference between background actions and completed events.', tag: 'B1 Grammar', icon: 'fa-book', type: 'grammar', question: "In the sentence 'I ________ (walk) when I saw the marching band', what is the correct form for the background action?", options: [ { text: "was walking", correct: true }, { text: "walked", correct: false }, { text: "walks", correct: false } ] },
+            { act: 1, id: 'cap-3', title: 'Vocab: Marching Band', desc: 'What exactly did the father take the boy to see?', tag: 'Meaning Lab', icon: 'fa-drum', type: 'vocab', question: "What is a <strong>'marching band'</strong>?", options: [ { text: "A group of musicians who play instruments while walking in a parade.", correct: true }, { text: "A rock band playing in a dark garage.", correct: false }, { text: "A classical orchestra playing in a theater.", correct: false } ] },
+            { act: 1, id: 'cap-4', title: 'Your Childhood Hero', desc: 'Discuss who influenced you when you were young.', tag: 'Speaking Arena', icon: 'fa-microphone-lines', type: 'arena', prompt: "When you were young, who was your hero or biggest influence?", director: "Use the Past Simple to tell a short completed story from your childhood.", starters: [ "When I was a young boy/girl...", "My hero was...", "They always told me to..." ] },
+            { act: 1, id: 'cap-5', title: 'Growing Up', desc: 'Complete the father\'s message about the future.', tag: 'Spotify Lyrics', icon: 'fa-music', type: 'lyrics', lines: [ {text: "He said, son, when you ____ up", active: true, target: "grow"}, {text: "Would you be the savior of the broken", active: false} ], options: ["grow", "wake", "stand", "look"] },
+
+            // ACT 2: The Interruption
+            { act: 2, id: 'cap-6', title: 'Interrupted Actions', desc: 'Master how the Past Simple interrupts the Past Continuous.', tag: 'B1 Grammar', icon: 'fa-bolt', type: 'grammar', question: "Identify the correct structure for an interrupted action in the past:", options: [ {text: "While they were walking, the father spoke.", correct: true}, {text: "While they walked, the father was speaking.", correct: false}, {text: "When they were walking, the father was speaking.", correct: false} ] },
+            { act: 2, id: 'cap-7', title: 'Vocab: Savior', desc: 'What does the father want the son to be?', tag: 'Meaning Lab', icon: 'fa-hand-holding-heart', type: 'vocab', question: "What does it mean to be a <strong>'savior of the broken'</strong>?", options: [ {text: "To fix broken electronics.", correct: false}, {text: "To rescue or help people who are emotionally hurt or defeated.", correct: true}, {text: "To lead a marching band.", correct: false} ] },
+            { act: 2, id: 'cap-8', title: 'Be a Savior', desc: 'If you could help the world, what would you do?', tag: 'Speaking Arena', icon: 'fa-earth-americas', type: 'arena', prompt: "If you could be a savior for a cause or a group of people, what would it be?", director: "Share your ideas on how to help others in need.", starters: ["I would like to help...", "In my opinion, the world needs...", "I have always wanted to..."] },
+            { act: 2, id: 'cap-9', title: 'The Beaten and The Damned', desc: 'Fill in the words to complete the father\'s question.', tag: 'Spotify Lyrics', icon: 'fa-headphones', type: 'lyrics', lines: [ {text: "The beaten and the ____", active: true, target: "damned"}, {text: "He said, will you ____ them", active: true, target: "defeat"}, {text: "Your demons, and all the non-believers", active: false} ], options: ["damned", "lost", "defeat", "ignore"] },
+            { act: 2, id: 'cap-10', title: 'Grammar: Listening in the Past', desc: 'Forming questions with Past Continuous.', tag: 'B1 Grammar', icon: 'fa-question', type: 'grammar', question: "Choose the correct question form to ask about an ongoing action in the past:", options: [ {text: "Did you listening to the lyrics when the song started?", correct: false}, {text: "Were you listening to the lyrics when the song started?", correct: true}, {text: "Are you listening to the lyrics when the song started?", correct: false} ] },
+
+            // ACT 3: The Phantom
+            { act: 3, id: 'cap-11', title: 'Vocab: Phantom', desc: 'Understand the metaphorical language of the song.', tag: 'Meaning Lab', icon: 'fa-ghost', type: 'vocab', question: "The lyrics mention a <strong>'phantom'</strong>. What does this represent?", options: [ {text: "A literal ghost haunting a house.", correct: false}, {text: "A vision, memory, or feeling that stays with you.", correct: true}, {text: "A type of musical instrument.", correct: false} ] },
+            { act: 3, id: 'cap-12', title: 'The Plans They Made', desc: 'Complete the lyrics about leaving a legacy.', tag: 'Spotify Lyrics', icon: 'fa-music', type: 'lyrics', lines: [ {text: "The plans that they have ____", active: true, target: "made"}, {text: "Because one day, I'll leave you a ____", active: true, target: "phantom"} ], options: ["made", "lost", "phantom", "gift"] },
+            { act: 3, id: 'cap-13', title: 'Grammar: Completed Actions', desc: 'Using Past Simple for completed events in a story.', tag: 'B1 Grammar', icon: 'fa-pen-nib', type: 'grammar', question: "If the father's action of leaving a memory is completely finished in the past narrative, we say:", options: [ {text: "He was leaving me a phantom.", correct: false}, {text: "He leaves me a phantom.", correct: false}, {text: "He left me a phantom.", correct: true} ] },
+            { act: 3, id: 'cap-14', title: 'A Powerful Memory', desc: 'Tell a story about something you remember clearly.', tag: 'Speaking Arena', icon: 'fa-brain', type: 'arena', prompt: "Describe a vivid memory from your past where someone gave you important advice.", director: "Use 'I was [doing something]' to set the scene, and 'when they [said/did]' for the interruption.", starters: ["I was playing/studying when...", "I remember they told me to...", "That moment changed my perspective because..."] },
+            { act: 3, id: 'cap-15', title: 'Leading in the Summer', desc: 'Complete the visual metaphor of the song.', tag: 'Spotify Lyrics', icon: 'fa-headphones', type: 'lyrics', lines: [ {text: "To lead you in the ____", active: true, target: "summer"}, {text: "To join the black ____", active: true, target: "parade"} ], options: ["summer", "winter", "parade", "party"] },
+
+            // ACT 4: Adversity
+            { act: 4, id: 'cap-16', title: 'Vocab: Defeated', desc: 'Understanding feelings of loss and resilience.', tag: 'Meaning Lab', icon: 'fa-shield-heart', type: 'vocab', question: "What does it mean to feel <strong>'defeated'</strong>?", options: [ {text: "To feel like you have lost and cannot win.", correct: true}, {text: "To feel incredibly happy and successful.", correct: false}, {text: "To feel sleepy after a long day.", correct: false} ] },
+            { act: 4, id: 'cap-17', title: 'Grammar: Identifying the Interruption', desc: 'Which action is shorter?', tag: 'B1 Grammar', icon: 'fa-stopwatch', type: 'grammar', question: "In the sentence 'While I was walking, I saw a ghost', which action is the shorter interruption?", options: [ {text: "was walking", correct: false}, {text: "I saw a ghost", correct: true}, {text: "Both take the same amount of time", correct: false} ] },
+            { act: 4, id: 'cap-18', title: 'Rising Up', desc: 'Speak about overcoming a moment of defeat.', tag: 'Speaking Arena', icon: 'fa-fire-flame-curved', type: 'arena', prompt: "Tell about a time you felt defeated, but you decided to keep going.", director: "Use past narrative tenses to describe the situation and how you overcame it.", starters: ["At that time, I was trying to...", "I felt defeated when...", "But then I realized I had to..."] },
+            { act: 4, id: 'cap-19', title: 'She\'s Watching Over Me', desc: 'Complete the emotional lyrics.', tag: 'Spotify Lyrics', icon: 'fa-music', type: 'lyrics', lines: [ {text: "Sometimes I get the feeling she's ____ over me", active: true, target: "watching"}, {text: "And other times I feel like I should ____", active: true, target: "go"} ], options: ["watching", "crying", "go", "stay"] },
+            { act: 4, id: 'cap-20', title: 'Grammar: Negatives in Past Continuous', desc: 'How to form negative background actions.', tag: 'B1 Grammar', icon: 'fa-minus', type: 'grammar', question: "If you want to say that you were NOT paying attention in the past, you say:", options: [ {text: "I didn't listening.", correct: false}, {text: "I wasn't listening.", correct: true}, {text: "I haven't been listening.", correct: false} ] },
+
+            // ACT 5: Carry On
+            { act: 5, id: 'cap-21', title: 'Vocab: Carry On', desc: 'The core message of the Black Parade.', tag: 'Meaning Lab', icon: 'fa-person-walking-arrow-right', type: 'vocab', question: "The chorus repeats 'We'll carry on'. What does <strong>'carry on'</strong> mean?", options: [ {text: "To carry a heavy box.", correct: false}, {text: "To stop doing what you are doing.", correct: false}, {text: "To continue moving forward despite difficulties.", correct: true} ] },
+            { act: 5, id: 'cap-22', title: 'The Anthem', desc: 'Complete the most famous chorus in emo history.', tag: 'Spotify Lyrics', icon: 'fa-headphones', type: 'lyrics', lines: [ {text: "We'll carry ____", active: true, target: "on"}, {text: "And though you're dead and gone, believe me", active: false}, {text: "Your memory will carry ____", active: true, target: "on"} ], options: ["on", "out", "away", "up"] },
+            { act: 5, id: 'cap-23', title: 'Grammar: Mixed Narrative Check', desc: 'Combine everything you learned.', tag: 'B1 Grammar', icon: 'fa-list-check', type: 'grammar', question: "Choose the correct narrative sentence:", options: [ {text: "I was listening to MCR when the power went out.", correct: true}, {text: "I listened to MCR when the power was going out.", correct: false}, {text: "I was listening to MCR when the power was going out.", correct: false} ] },
+            { act: 5, id: 'cap-24', title: 'The Most Powerful Line', desc: 'Reflect on the lyrics of the song.', tag: 'Speaking Arena', icon: 'fa-quote-left', type: 'arena', prompt: "Which line from 'Welcome to the Black Parade' was the most powerful for you and why?", director: "Share your personal connection with the song's themes of memory and hope.", starters: ["The most powerful line for me was...", "I really connected with it because...", "It makes me think about..."] },
+            { act: 5, id: 'cap-25', title: 'Your Legacy', desc: 'Final reflection on the module.', tag: 'Speaking Arena', icon: 'fa-crown', type: 'arena', prompt: "What is the legacy or memory you want to leave behind for others to 'carry on'?", director: "Make your final reflection combining your ideas of heroism, legacy, and continuing forward.", starters: ["The legacy I want to leave is...", "I hope people remember me for...", "I will always try to carry on by..."] }
+        ];
+
+        let currentModuleIndex = 0;
+        let isPlaying = false;
+        let progressInterval;
+        let selectedLyricWord = null;
+        let currentLyricLineIndex = 0;
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('tabs-container');
+            tabsContainer.innerHTML = categories.map(cat => `
+                <button onclick="selectCategory(${cat.id})" class="flex-shrink-0 px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 border ${currentCategory === cat.id ? 'bg-mcr-crimson text-white border-mcr-crimson shadow-[0_0_15px_rgba(153,27,27,0.5)]' : 'bg-black/40 text-zinc-400 border-zinc-700 hover:bg-zinc-800 hover:text-white'}">
+                    <i class="fa-solid ${cat.icon} mr-2"></i> ${cat.name}
+                </button>
+            `).join('');
+        }
+
+        function selectCategory(id) {
+            currentCategory = id;
+            renderTabs();
+            renderCapsules();
+        }
+
+        function renderCapsules() {
+            const container = document.getElementById('capsules-container');
+            
+            // Filter modules by the currently selected category (Act)
+            const filteredHtml = modules.map((mod, index) => {
+                if (mod.act !== currentCategory) return '';
+
+                const isCompleted = mod.completed;
+                const borderClass = isCompleted ? 'border-mcr-silver/70' : 'border-zinc-800 hover:border-mcr-crimson/50';
+                const iconBgClass = isCompleted ? 'bg-mcr-silver text-black' : 'bg-black/40 text-mcr-silver group-hover:bg-mcr-crimson group-hover:text-white';
+                const checkMark = isCompleted ? '<div class="absolute top-4 right-4 text-mcr-silver animate-fade-in"><i class="fa-solid fa-circle-check text-xl"></i></div>' : '';
+                
+                return `
+                <div class="bg-zinc-900/80 backdrop-blur-md hover:bg-zinc-800 border ${borderClass} rounded-2xl p-6 cursor-pointer transition-all duration-300 group flex flex-col h-full shadow-lg hover:shadow-[0_0_20px_rgba(153,27,27,0.2)] relative overflow-hidden animate-fade-in" onclick="startModule(${index})">
+                    
+                    ${checkMark}
+                    <!-- Decorative background glow -->
+                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-red-900/5 rounded-full blur-3xl group-hover:bg-red-900/20 transition-colors"></div>
+
+                    <div class="w-12 h-12 rounded-xl ${iconBgClass} flex items-center justify-center text-xl mb-6 group-hover:scale-110 transition-all shadow-md border border-zinc-700">
+                        <i class="fa-solid ${mod.icon}"></i>
+                    </div>
+                    
+                    <h3 class="text-white font-black text-xl mb-2 tracking-tight">${mod.title}</h3>
+                    <p class="text-zinc-400 text-sm mb-8 flex-grow leading-relaxed">${mod.desc}</p>
+                    
+                    <div class="flex justify-between items-center mt-auto pt-4 border-t border-zinc-800">
+                        <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-black/60 px-3 py-1.5 rounded border border-zinc-800">${mod.tag}</span>
+                        <div class="w-8 h-8 rounded-full ${isCompleted ? 'bg-mcr-silver text-black' : 'bg-mcr-crimson text-white'} flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 shadow-lg">
+                            <i class="fa-solid ${isCompleted ? 'fa-check' : 'fa-play ml-0.5'} text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            container.innerHTML = filteredHtml;
+        }
+
+        function toggleGlobalPlay() {
+            const icon = document.getElementById('global-play-icon');
+            const progress = document.getElementById('player-progress');
+            const timeDisplay = document.getElementById('player-time-current');
+            
+            isPlaying = !isPlaying;
+            
+            if (isPlaying) {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+                
+                let width = parseFloat(progress.style.width) || 0;
+                let seconds = 0;
+                
+                progressInterval = setInterval(() => {
+                    width += 0.05;
+                    seconds += 0.15; 
+                    if (width > 100) width = 0;
+                    progress.style.width = width + '%';
+                    
+                    const m = Math.floor(seconds / 60);
+                    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+                    timeDisplay.innerText = `${m}:${s}`;
+                }, 100);
+            } else {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+                clearInterval(progressInterval);
+            }
+        }
+
+        function startMasterclass() {
+            // Ensure we jump to Category 1, Module 0
+            selectCategory(1);
+            startModule(0);
+            if(!isPlaying) toggleGlobalPlay();
+        }
+
+        function startModule(index) {
+            currentModuleIndex = index;
+            const module = modules[index];
+            
+            document.getElementById('ex-subtitle').innerText = module.tag;
+            document.getElementById('ex-title').innerText = module.title;
+            document.getElementById('ex-header-icon').className = `fa-solid ${module.icon} text-mcr-silver text-xl`;
+            
+            document.getElementById('exercise-view').classList.add('active');
+            
+            renderQuestion();
+        }
+
+        function closeExercise() {
+            document.getElementById('exercise-view').classList.remove('active');
+            hideFeedback();
+        }
+
+        function nextModule() {
+            if(currentModuleIndex + 1 < modules.length) {
+                const nextIndex = currentModuleIndex + 1;
+                const nextAct = modules[nextIndex].act;
+                
+                // If the next module is in a new category, update the UI tab automatically
+                if (currentCategory !== nextAct) {
+                    selectCategory(nextAct);
+                }
+                
+                startModule(nextIndex);
+            } else {
+                closeExercise();
+            }
+        }
+
+        function renderQuestion() {
+            const module = modules[currentModuleIndex];
+            const content = document.getElementById('exercise-content');
+            content.innerHTML = '';
+            hideFeedback();
+
+            if (module.type === 'lyrics') renderSpotifyLyrics(module);
+            if (module.type === 'vocab' || module.type === 'grammar') renderQuiz(module);
+            if (module.type === 'arena') renderArena(module);
+        }
+
+        // --- CAPSULE TYPE: LYRICS ---
+        function renderSpotifyLyrics(module) {
+            selectedLyricWord = null;
+            
+            currentLyricLineIndex = module.lines.findIndex(l => l.active && !l.solved);
+            
+            if (currentLyricLineIndex === -1) {
+                finishModule();
+                return;
+            }
+
+            const activeLine = module.lines[currentLyricLineIndex];
+            const content = document.getElementById('exercise-content');
+            
+            let lyricsHtml = module.lines.map((line, idx) => {
+                if (line.active) {
+                    const parts = line.text.split('____');
+                    if (line.solved) {
+                        return `<div class="lyric-line lyric-inactive my-4">${parts[0]} <span class="text-mcr-crimson drop-shadow-md">${line.target}</span> ${parts[1] || ''}</div>`;
+                    } else if (idx === currentLyricLineIndex) {
+                        return `
+                            <div class="lyric-line lyric-active my-4 scale-105 origin-left">
+                                ${parts[0]} <span id="lyric-blank" class="lyric-blank bg-zinc-900/50">...</span> ${parts[1] || ''}
+                            </div>
+                        `;
+                    } else {
+                        return `<div class="lyric-line lyric-inactive my-4 opacity-40">${parts[0]} ____ ${parts[1] || ''}</div>`;
+                    }
+                } else {
+                    return `<div class="lyric-line lyric-inactive my-4 opacity-40">${line.text}</div>`;
+                }
+            }).join('');
+
+            let optionsHtml = module.options.map(opt => `
+                <button onclick="selectLyricOption('${opt}')" class="option-pill" id="opt-${opt}">
+                    ${opt}
+                </button>
+            `).join('');
+
+            content.innerHTML = `
+                <div class="w-full max-w-4xl mx-auto flex flex-col h-full animate-fade-in pt-6">
+                    <p class="text-mcr-silver text-sm font-bold uppercase tracking-widest mb-8"><i class="fa-solid fa-volume-high mr-2"></i> Listen and complete</p>
+                    <div class="flex-grow flex flex-col justify-center">
+                        ${lyricsHtml}
+                    </div>
+                    
+                    <div class="mt-auto pt-10 pb-4 flex flex-col items-center gap-8 bg-gradient-to-t from-[var(--lyric-bg)] to-transparent">
+                        <div class="flex flex-wrap justify-center gap-4">
+                            ${optionsHtml}
+                        </div>
+                        <button id="btn-confirm-lyrics" onclick="confirmLyrics()" disabled class="btn-confirm-glow animate-pulse-crimson-glow">
+                            <i class="fa-solid fa-skull"></i> Confirm Word
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectLyricOption(word) {
+            selectedLyricWord = word;
+            const blank = document.getElementById('lyric-blank');
+            blank.innerText = word;
+            blank.classList.add('filled', 'bg-transparent');
+            blank.classList.remove('bg-zinc-900/50');
+            
+            const module = modules[currentModuleIndex];
+            module.options.forEach(opt => {
+                const el = document.getElementById(`opt-${opt}`);
+                if(el) el.classList.remove('selected');
+            });
+            document.getElementById(`opt-${word}`).classList.add('selected');
+            
+            document.getElementById('btn-confirm-lyrics').disabled = false;
+        }
+
+        function confirmLyrics() {
+            const module = modules[currentModuleIndex];
+            const activeLine = module.lines[currentLyricLineIndex];
+            
+            if (selectedLyricWord === activeLine.target) {
+                document.getElementById('lyric-blank').classList.add('bg-success-glow');
+                document.getElementById(`opt-${selectedLyricWord}`).classList.add('bg-success-glow');
+                
+                showFeedback("success", "Correct! You completed the verse.", "advanceLyrics()");
+            } else {
+                showFeedback("error", "Not quite. Think about the marching context and try again.");
+                setTimeout(hideFeedback, 3000); 
+            }
+        }
+
+        function advanceLyrics() {
+            hideFeedback();
+            const module = modules[currentModuleIndex];
+            const activeLine = module.lines[currentLyricLineIndex];
+            activeLine.solved = true;
+            renderSpotifyLyrics(module); 
+        }
+
+        // --- CAPSULE TYPE: MINIMALIST QUIZ (Grammar/Vocab) ---
+        function renderQuiz(module) {
+            let optionsHtml = module.options.map((opt, i) => `
+                <div onclick="selectQuizOption(${i})" class="bg-zinc-900/60 backdrop-blur-sm hover:bg-zinc-800 border border-zinc-700 hover:border-mcr-crimson rounded-xl p-6 cursor-pointer transition-all duration-300 group flex items-center justify-between shadow-lg" id="quiz-opt-${i}">
+                    <p class="text-white text-xl font-bold group-hover:text-mcr-crimson transition-colors">${opt.text}</p>
+                    <div class="w-6 h-6 rounded-full border-2 border-zinc-500 group-hover:border-mcr-crimson flex items-center justify-center">
+                        <div class="w-3 h-3 rounded-full bg-mcr-crimson opacity-0 transition-opacity" id="quiz-dot-${i}"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('exercise-content').innerHTML = `
+                <div class="w-full max-w-3xl mx-auto mt-16 animate-fade-in flex flex-col h-full">
+                    <div class="text-center mb-16">
+                        <div class="w-20 h-20 bg-black/60 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg border border-red-900/40">
+                            <i class="fa-solid ${module.icon} text-4xl text-mcr-silver"></i>
+                        </div>
+                        <h3 class="text-3xl md:text-4xl font-black text-white leading-tight">${module.question}</h3>
+                    </div>
+                    
+                    <div class="space-y-4 w-full" id="quiz-options-container">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectQuizOption(index) {
+            const module = modules[currentModuleIndex];
+            const option = module.options[index];
+            const container = document.getElementById('quiz-options-container');
+            
+            container.style.pointerEvents = 'none';
+            
+            const selectedEl = document.getElementById(`quiz-opt-${index}`);
+            const dot = document.getElementById(`quiz-dot-${index}`);
+            
+            dot.style.opacity = '1';
+
+            if (option.correct) {
+                selectedEl.classList.add('bg-success-glow'); 
+                showFeedback("success", "Excellent! You understand the concept perfectly.", "finishModule()");
+            } else {
+                selectedEl.classList.add('bg-error-glow');
+                dot.classList.replace('bg-mcr-crimson', 'bg-white');
+                selectedEl.querySelector('.border-2').classList.replace('group-hover:border-mcr-crimson', 'border-white');
+                
+                showFeedback("error", "Review the differences between the tenses and try again.");
+                
+                setTimeout(() => {
+                    hideFeedback();
+                    container.style.pointerEvents = 'auto';
+                    selectedEl.classList.remove('bg-error-glow');
+                    dot.classList.replace('bg-white', 'bg-mcr-crimson');
+                    dot.style.opacity = '0';
+                    selectedEl.querySelector('.border-2').classList.replace('border-white', 'group-hover:border-mcr-crimson');
+                }, 3000);
+            }
+        }
+
+        // --- CAPSULE TYPE: SPEAKING ARENA ---
+        function renderArena(module) {
+            let startersHtml = module.starters.map(s => `
+                <div class="bg-black/60 border-l-4 border-mcr-crimson p-4 rounded-r-lg shadow-[0_4px_15px_rgba(0,0,0,0.5)] hover:bg-black/80 transition-colors">
+                    <p class="text-white font-bold italic text-lg">"${s}"</p>
+                </div>
+            `).join('');
+
+            document.getElementById('exercise-content').innerHTML = `
+                <div class="w-full max-w-6xl mx-auto mt-4 animate-fade-in flex flex-col h-full">
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 flex-grow">
+                        <!-- Challenge Prompt Side -->
+                        <div class="bg-zinc-950/80 p-8 md:p-10 rounded-2xl border border-red-900/30 relative flex flex-col justify-center shadow-xl backdrop-blur-md">
+                            <div class="absolute -top-4 left-8 bg-zinc-800 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg border border-zinc-600">B1 Discussion Prompt</div>
+                            
+                            <div class="w-20 h-20 bg-black/80 rounded-full flex items-center justify-center mb-8 mx-auto relative border border-red-900/50 shadow-inner">
+                                <i class="fa-solid fa-microphone-lines text-3xl text-mcr-crimson animate-pulse"></i>
+                            </div>
+
+                            <p class="text-white text-3xl md:text-4xl font-black italic leading-tight text-center mb-8 tracking-tighter drop-shadow-lg">"${module.prompt}"</p>
+                            
+                            <div class="mt-auto p-5 bg-black/60 border border-zinc-800 rounded-xl">
+                                <p class="text-[10px] text-zinc-400 font-black uppercase tracking-widest mb-2"><i class="fa-solid fa-crosshairs text-mcr-crimson mr-2"></i> Goal</p>
+                                <p class="text-sm text-zinc-300 font-medium leading-relaxed">${module.director}</p>
+                            </div>
+                        </div>
+
+                        <!-- Student Recording Side -->
+                        <div class="flex flex-col justify-center gap-6 transition-all duration-500 bg-black/40 p-8 md:p-10 rounded-2xl border border-zinc-800 backdrop-blur-sm" id="podcast-student-side">
+                            <div class="flex items-center gap-3 mb-2 bg-zinc-900 w-max px-4 py-2 rounded-full border border-zinc-700">
+                                <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.8)]"></div>
+                                <p class="text-xs text-zinc-300 font-bold uppercase tracking-widest">Speak Out Loud</p>
+                            </div>
+                            
+                            <p class="text-zinc-400 text-sm mb-2 leading-relaxed">Use one of these <span class="text-white font-bold border-b border-mcr-crimson pb-0.5">Speaking Starters</span> to structure your response.</p>
+                            
+                            <div class="space-y-3 mb-6 flex-grow flex flex-col justify-center">
+                                ${startersHtml}
+                            </div>
+
+                            <button onclick="finishPodcastSpeaking()" class="btn-confirm-glow animate-pulse-crimson-glow w-full justify-center py-5 text-lg shadow-xl mt-auto">
+                                <i class="fa-solid fa-microphone text-xl"></i> I'm Done Speaking
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function finishPodcastSpeaking() {
+            const studentSide = document.getElementById('podcast-student-side');
+            studentSide.classList.add('bg-success-glow');
+            studentSide.classList.remove('bg-black/40', 'border-zinc-800');
+            
+            const btn = studentSide.querySelector('button');
+            btn.innerHTML = `<i class="fa-solid fa-check text-2xl"></i> Recorded!`;
+            btn.classList.remove('bg-mcr-crimson', 'animate-pulse-crimson-glow');
+            btn.classList.add('bg-mcr-silver', 'text-black');
+            
+            showFeedback("success", "Great speaking practice! Your message was clear and correct.", "finishModule()");
+        }
+
+        // --- CAPSULE COMPLETION (100% MANUAL ADVANCE WITH TAB SYNC) ---
+        function finishModule() {
+            hideFeedback();
+            const isLast = currentModuleIndex + 1 >= modules.length;
+            const btnText = isLast ? "Finish Masterclass" : "Next Capsule <i class='fa-solid fa-forward-step ml-2'></i>";
+            const btnAction = isLast ? "closeExercise()" : "nextModule()";
+
+            document.getElementById('exercise-content').innerHTML = `
+                <div class="text-center animate-fade-in flex flex-col items-center justify-center h-full">
+                    <div class="w-28 h-28 bg-mcr-silver rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(209,213,219,0.5)]">
+                        <i class="fa-solid fa-check text-6xl text-black"></i>
+                    </div>
+                    <h2 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tighter">Capsule Complete</h2>
+                    <p class="text-lg text-zinc-400 mb-12 max-w-md mx-auto">You've successfully mastered this My Chemical Romance (B1) module.</p>
+                    <button onclick="${btnAction}" class="btn-confirm-glow shadow-xl px-12 py-5 hover:scale-105 transition-transform" style="background-color: var(--mcr-silver); color: black;">
+                        ${btnText}
+                    </button>
+                </div>
+            `;
+            
+            modules[currentModuleIndex].completed = true;
+            renderCapsules(); // Updates the background grid with a "Check"
+        }
+
+        // --- FLOATING FEEDBACK SYSTEM ---
+        function showFeedback(type, message, okAction = null) {
+            const bar = document.getElementById('feedback-bar');
+            
+            let bgClass = "bg-mcr-silver text-black border-mcr-silver";
+            let icon = "fa-circle-check";
+            let actionBtn = "";
+            
+            if (type === "error") { 
+                bgClass = "bg-red-700 text-white border-red-600"; 
+                icon = "fa-triangle-exclamation"; 
+            }
+            if (type === "warning") { 
+                bgClass = "bg-yellow-600 text-white border-yellow-500"; 
+                icon = "fa-circle-info"; 
+            }
+
+            if (okAction) {
+                actionBtn = `<button onclick="${okAction}" class="ml-auto bg-black text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform uppercase tracking-widest text-sm shadow-xl border border-white/20">OK <i class="fa-solid fa-arrow-right ml-2"></i></button>`;
+            }
+            
+            bar.className = `absolute bottom-8 left-1/2 transform -translate-x-1/2 w-[90%] max-w-3xl py-5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] z-50 flex items-center justify-between px-8 transition-all duration-500 cubic-bezier(0.175, 0.885, 0.32, 1.275) border-2 opacity-100 translate-y-0 ${bgClass}`;
+            
+            bar.innerHTML = `
+                <div class="flex items-center justify-start gap-5">
+                    <i class="fa-solid ${icon} text-3xl drop-shadow-md"></i>
+                    <h4 class="text-lg font-bold tracking-wide">${message}</h4>
+                </div>
+                ${actionBtn}
+            `;
+        }
+
+        function hideFeedback() {
+            const bar = document.getElementById('feedback-bar');
+            bar.classList.remove('opacity-100', 'translate-y-0');
+            bar.classList.add('opacity-0', 'translate-y-12', 'pointer-events-none');
+        }
+
+        window.onload = () => { 
+            renderTabs();
+            renderCapsules(); 
+        };
+    </script>
+</body>
+</html>
